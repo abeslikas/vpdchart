@@ -1,5 +1,7 @@
 ##IMPORT LIBRARIES
 from tkinter import messagebox
+
+import plotly.plotly as py## DEN DOYLEYEI XORIS AYTO
 import matplotlib.pyplot as plt
 import datetime as dt
 import matplotlib.pyplot as plt
