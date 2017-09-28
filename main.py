@@ -1,7 +1,6 @@
 ##IMPORT LIBRARIES
 from tkinter import messagebox
-
-import plotly.plotly as py## DEN DOYLEYEI XORIS AYTO
+import plotly.plotly as py## Does not work without this
 import matplotlib.pyplot as plt
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -11,6 +10,8 @@ import math
 from tkinter.filedialog import askopenfilename, Tk
 
 ##CONSTANT VARIEBLES
+from plotly.figure_factory._distplot import pd
+
 svp = [611, 657, 706, 758, 813, 872, 935, 1002, 1073, 1148, 1228, 1312, 1402, 1497, 1598, 1705, 1818, 1937, 2064, 2197,
        2338, 2486, 2643, 2809, 2983, 3167, 3361, 3565, 3779, 4005, 4242, 4492, 4754, 5029, 5318, 5621, 5940, 6273, 6623,
        6990, 7374, 7776]
@@ -33,69 +34,6 @@ def calculateDewpoint(temp,moist):
 def datetime_to_float(d):
     return d.timestamp()
 
-
-def getResults(ind):
-    plt.clf()
-    ##CREATE PLOT
-    p.mpl.rcParams['toolbar'] = 'None'
-
-    ##CREATE X AXE AS STRING
-    x = [dt.datetime.strptime(d, '%d/%m/%Y %I:%M:%S %p').time() for d in mydates]
-    plt.xticks(x, mydates)
-
-    ##GRAB THE LAST TEN RESULTS
-    myx = x[(-11+(ind*10)):(-1+(ind*10)):]  ##DATES
-    myy = mytemp[(-11+(ind*10)):(-1+(ind*10)):]
-    myy2 = mymoist[(-11+(ind*10)):(-1+(ind*10)):]
-    mydew = mydewpoint[(-11+(ind*10)):(-1+(ind*10)):]
-    myvapor = myvpd[(-11+(ind*10)):(-1+(ind*10)):]
-
-    ##CREATE AXES Y
-    ax1 = fig.add_subplot(111)
-    ax1.set_ylabel('Temp', color='g')
-
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('Moist', color='r')
-
-    ax3 = ax1.twinx()
-    ax3.set_ylabel('VPD', color='b')
-    ax3.spines['right'].set_position(('outward', 60))
-
-    ##GENATATE PLOT
-    ax1.plot(myx, myy, marker='o', color="g", label="temp")
-    ax2.plot(myx, myy2, 'r-', marker='o', color="r", label="moist")
-    ax3.plot(myx, myvapor, 'r--', marker='o', color="b", label="vpd")
-
-    ##PRINT VALUES ON THE MARKERS
-    for i, txt in enumerate(myy):
-        ax1.annotate(txt, (myx[i], myy[i]))
-    for i, txt in enumerate(myy2):
-        ax2.annotate(txt, (myx[i], myy2[i]))
-    for i, txt in enumerate(myvapor):
-        ax3.annotate(txt, (myx[i], myvapor[i]))
-
-    ##ROTATE X AXE
-    for ax in fig.axes:
-        p.matplotlib.pyplot.sca(ax)
-        plt.xticks(rotation=60)
-    plt.tight_layout()
-
-    callback = Index()
-    axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
-    axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
-    axvpd = plt.axes([0.49, 0.05, 0.1, 0.075])
-
-    bnext = Button(axnext, 'Next')
-    bnext.on_clicked(callback.next)
-    bprev = Button(axprev, 'Previous')
-    bprev.on_clicked(callback.prev)
-    lvpd = Button(axvpd, "Optimal VPD 4-14")
-
-    ##GO FULL SCREEN
-    mng = plt.get_current_fig_manager()
-    ### does NOT working on ubuntu
-    mng.window.state('zoomed')
-    plt.show()
 
 ##ASK FOR THE FILE
 Tk().withdraw()
@@ -149,7 +87,7 @@ ax3.spines['right'].set_position(('outward', 60))
 
 ##GENATATE PLOT
 ax1.plot(myx, myy, marker='o',color="g",label="temp")
-ax2.plot(myx, myy2, 'r-', marker='o',color="r",label="moist")
+l,=ax2.plot(myx, myy2, 'r-', marker='o',color="r",label="moist")
 ax3.plot(myx, myvapor, 'r--', marker='o',color="b",label="vpd")
 
 ##PRINT VALUES ON THE MARKERS
@@ -172,11 +110,9 @@ class Index(object):
     ind =0
 
     def next(self, event):
-        if(self.ind==0):
-            messagebox.showinfo("Title", "a Tk MessageBox")
+        print()
 
     def prev(self, event):
-        getResults(self.ind)
         self.ind += 1
         print(self.ind)
         print("sad")
@@ -189,11 +125,33 @@ axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
 axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
 axvpd = plt.axes([0.49, 0.05, 0.1, 0.075])
 
+
+
+
+n_groups = 10
+means_men = [20, 35, 30, 35, 27,20, 35, 30, 35, 27]
+std_men = [2, 3, 4, 1, 2,2, 3, 4, 1, 2]
+
+
+
+index = p.np.arange(n_groups)
+bar_width = 0.95
+opacity = 0.4
+error_config = {'ecolor': '0.3'}
+axvpdpercent = plt.bar(index, means_men, bar_width,
+                 alpha=opacity,
+                 color='g',
+                 yerr=std_men,
+                 error_kw=error_config,
+                 )
+
 bnext = Button(axnext, 'Next')
 bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
-lvpd=Button(axvpd,"Optimal VPD 4-14")
+
+
+#lvpd=Button(axvpd,"Optimal VPD 4-14")
 
 
 
